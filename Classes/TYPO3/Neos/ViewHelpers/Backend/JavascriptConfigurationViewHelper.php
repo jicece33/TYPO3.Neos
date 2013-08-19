@@ -38,9 +38,9 @@ class JavascriptConfigurationViewHelper extends \TYPO3\Fluid\Core\ViewHelper\Abs
 
 	/**
 	 * @Flow\Inject
-	 * @var \TYPO3\Flow\Resource\Publishing\ResourcePublisher
+	 * @var \TYPO3\Flow\Resource\ResourceManager
 	 */
-	protected $resourcePublisher;
+	protected $resourceManager;
 
 	/**
 	 * @Flow\Inject
@@ -83,12 +83,11 @@ class JavascriptConfigurationViewHelper extends \TYPO3\Fluid\Core\ViewHelper\Abs
 		$localizedResourcePathData = $this->i18nService->getLocalizedFilename($resourcePath);
 		$matches = array();
 		if (preg_match('#resource://([^/]+)/Public/(.*)#', current($localizedResourcePathData), $matches) === 1) {
-			$package = $matches[1];
+			$packageKey = $matches[1];
 			$path = $matches[2];
+			$neosJavaScriptBasePath = $this->resourceManager->getPublicPackageResourceUri($packageKey, $path);
+			$configuration[] = 'window.T3Configuration.neosJavascriptBasePath = ' . json_encode($neosJavaScriptBasePath) . ';';
 		}
-		$neosJavaScriptBasePath = $this->resourcePublisher->getStaticResourcesWebBaseUri() . 'Packages/' . $package . '/' . $path;
-
-		$configuration[] = 'window.T3Configuration.neosJavascriptBasePath = ' . json_encode($neosJavaScriptBasePath) . ';';
 
 		if ($this->bootstrap->getContext()->isDevelopment()) {
 			$configuration[] = 'window.T3Configuration.DevelopmentMode = true;';
